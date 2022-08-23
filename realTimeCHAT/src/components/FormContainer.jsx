@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import cactus from "../assets/register-cactus.svg";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,6 +8,7 @@ import axios from "axios";
 import { registerRoute } from "../utils/Routes";
 
 const FormContainer = () => {
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     username: "",
     email: "",
@@ -26,12 +27,20 @@ const FormContainer = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (handleValidation()) {
+      console.log("request", registerRoute);
       const { password, email, username } = values;
       const { data } = await axios.post(registerRoute, {
         password,
         email,
         username,
       });
+      if (!data.status) {
+        toast.error(data.msg, toastOptions);
+      }
+      if (data.status) {
+        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        navigate("/");
+      }
     }
   };
 
